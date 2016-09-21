@@ -1,5 +1,8 @@
 <?php
 
+	// võtab ja kopeerib faili sisu
+	require ("../../config.php");
+	
 	// MVP esialgne idee: treeningu tulemuste analüüsimine nn. elektrooniline treeningpäevik.
 	// Sinna saaksid inimesed endale kasutaja luua ning oma treeningute andmeid sinna sisestada ja neid seal analüüsida (nädala/kuu kokkuvõtted jne).
 
@@ -159,6 +162,49 @@
 	
 	
 	
+	// Kus tean et ühtegi viga ei olnud ja saan kasutaja andmed salvestada
+	if ( isset($_POST["signupPassword"]) &&
+		 isset($_POST["signupEmail"]) &&
+		 empty($signupEmailError) && 
+		 empty($signupPasswordError)
+		) {
+		
+		echo "Salvestan...<br>";
+		echo "email ".$signupEmail."<br>";
+		
+		$password = hash("sha512", $_POST["signupPassword"]);
+		
+		echo "parool ".$_POST["signupPassword"]."<br>";
+		echo "räsi ".$password."<br>";
+		
+		//echo $serverPassword;
+		
+		
+		$database = "if16_Marliis";  //mysql kasutaja
+		
+		//ühendus
+		$mysqli = new mysqli($serverHost,$serverUsername,$serverPassword,$database);
+		
+		//käsk
+		$stmt = $mysqli->prepare("INSERT INTO user_sample (email, password) VALUES (?, ?)");
+		
+		echo $mysqli->error //selle rea trükin siis, kui mul on siin viga, siis ta näitab selle rea abil, mille kohta täpselt see käib, ta võib näidata ka, et alles real 198 on viga, siis ikka kirjutan siia käsu juurde järgmisele reale 
+		
+		//asendan küsimärgid väärtustega
+		//jutumärkidesse iga muutuja kohta üks täht, mis tüüpi muutuja on
+		// s - string
+		// i - integer
+		// d - double/float ehk komakohaga arv
+		$stmt->bind_param("ss", $signupEmail, $password);  //ss tuleb sellest, et VALUES (?, ?) mõlemad küsimärgid on stringid
+		
+		if($stmt->execute()) {
+		
+			echo "salvestamine õnnestus";
+		} else {
+		echo "ERROR ".$stmt->error;
+		}
+		
+	}
 		
 
 ?>
